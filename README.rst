@@ -5,8 +5,13 @@ This product allows Plone websites to manage portal_actions tool from
 portal_control_panel configlet in an easier way. Especially using rich (Ajax
 based) mode.
 
-This is a fully rewritten version of qPloneTabs product. It is based on kss
-javascript framework and Plone 3 technologies.
+This is a fully rewritten version of qPloneTabs product.
+
+.. image:: https://travis-ci.org/quintagroup/quintagroup.plonetabs.png?branch=master
+	:target: https://travis-ci.org/quintagroup/quintagroup.plonetabs
+
+.. image:: https://coveralls.io/repos/quintagroup/quintagroup.plonetabs/badge.png?branch=nokss
+	:target: https://coveralls.io/r/quintagroup/quintagroup.plonetabs?branch=nokss
 
 Features
 --------
@@ -42,7 +47,7 @@ to delete or edit tabs, as well as Plone actions items.
 Requirements
 ------------
 
-* Plone 4
+* Plone 4.x
 * Plone 3.x
 
 Rich (Ajax based) mode works for
