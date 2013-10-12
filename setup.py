@@ -5,6 +5,14 @@ from setuptools import setup, find_packages
 
 version = '0.7.1-dev'
 
+test_require = [
+    'plone.app.testing',
+    'robotsuite',
+    'robotframework-selenium2library',
+    'decorator',
+    'selenium',
+]
+
 setup(name='quintagroup.plonetabs',
       version=version,
       description="Quintagroup Plone Tabs",
@@ -41,6 +49,8 @@ setup(name='quintagroup.plonetabs',
       namespace_packages=['quintagroup'],
       include_package_data=True,
       zip_safe=False,
+      tests_require=test_require,
+      extras_require={'tests': test_require, },
       install_requires=[
           'setuptools',
           'plone.browserlayer'

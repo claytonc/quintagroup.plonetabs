@@ -9,6 +9,9 @@ env:
   - PLONE=4.1
   - PLONE=4.2
   - PLONE=4.3 QA=true
+before_script:
+  - "export DISPLAY=:99.0"
+  - "sh -e /etc/init.d/xvfb start"
 script: bin/test
 after_success: test -v QA && bin/coverage.sh && pip install -q coveralls && coveralls || true
 matrix: 

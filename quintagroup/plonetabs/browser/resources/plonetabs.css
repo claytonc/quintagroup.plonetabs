@@ -28,12 +28,12 @@
 */
 
 /*---------- QUINTAGROUP PLONE TABS LAYOUT ----------*/
-.qPloneTabs ul {
+.qPloneTabs ul#roottabs, .qPloneTabs ul#tabslist {
   list-style-type:none;
   list-style-image:none;
   margin-left:18px;
   }
-.kssTabsActive ul {
+.kssTabsActive ul#roottabs, .kssTabsActive ul#tabslist {
   margin-left:0;
   }
 .titleWrapper,
@@ -143,7 +143,7 @@
 /*--- Title Wrapper ---*/
 .titleWrapper {
   background-color:#fff;
-  margin-left:30px;
+  margin-left:33px;
   overflow:hidden;
   padding:1px 5px;
   white-space:nowrap;
@@ -180,7 +180,7 @@
   }
 .kssTabsActive .qPloneTabs .bridge {
   left:0;
-  width:30px;
+  width:33px;
   }
 /* IE need this to remove the padding around the check box */
 .kssTabsActive .qPloneTabs .bridge input {
@@ -247,14 +247,14 @@
   font-weight:normal;
   line-height:2.1em;
   position:absolute;
-  right:0.5em;
+  right:1em;
   }
 #addaction.adding .field-name input,
 #addaction.adding .field-action input,
 #addaction.adding .field-description input {
   margin-top:0.1em; 
-  padding-right:9em;
-  width:23.3em;
+  padding-right:10em;
+  width:24em;
   }
 #addaction .bridge {
   left:-18px;

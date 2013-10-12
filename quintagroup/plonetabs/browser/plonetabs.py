@@ -164,7 +164,7 @@ class PloneTabsControlPanel():
     def manage_ajax_addAction(self, form, errs):
         # extract posted data
         resp_dict = {}
-        cat_name = form['cat_name']
+        cat_name = form['category']
         id, ie7bad_category, data = self.parseAddForm(self.request.form)
 
         # validate posted data
@@ -295,7 +295,7 @@ class PloneTabsControlPanel():
         if not errors:
             self.deleteAction(act_id, cat_name)
             resp_dict['status_message'] = self.translate(
-                _(u"'${id}' action successfully removed.",
+                _(u"'${id}' action deleted.",
                   mapping={'id': act_id}))
             resp_dict['status_code'] = 200
         else:
@@ -383,7 +383,7 @@ class PloneTabsControlPanel():
         return resp_dict
 
     def manage_ajax_moveAction(self, form, errs):
-        cat_name = form['cat_name']
+        cat_name = form['category']
         category = self.getActionCategory(cat_name)
         components = urllib.unquote(form['actions']).split('&')
         if self.sufix == '':

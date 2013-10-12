@@ -1,5 +1,22 @@
 /*global $ */
 /*jslint white: true */
+'use strict';
+
+$.fn.serializeObject = function()
+{
+    var o = {}, a = this.serializeArray();
+    $.each(a, function() {
+        if (o[this.name] !== undefined) {
+            if (!o[this.name].push) {
+                o[this.name] = [o[this.name]];
+            }
+            o[this.name].push(this.value || '');
+        } else {
+            o[this.name] = this.value || '';
+        }
+    });
+    return o;
+};
 
 /*COMMON FUNCTIONS*/
 function clearStatusMessage() {
@@ -36,6 +53,22 @@ function parseResponse(response, this_event, formData, handler) {
   }
 }
 
+function reloadActions(formData) {
+    switch(formData.category) {
+    case 'portal_tabs':
+        $('#portal-globalnav').load(' #portal-globalnav>*');
+        break;
+    case 'site_actions':
+        $('#portal-siteactions').load(' #portal-siteactions>*');
+        break;
+    case 'user':
+        $('#portal-personaltools ul').load(' #portal-personaltools ul>*');
+        break;
+    default:
+        break;
+    }
+}
+
 function sendRequest(formData, handler, this_event, parse) {
   $.ajax({
     type: 'POST',
@@ -49,6 +82,7 @@ function sendRequest(formData, handler, this_event, parse) {
       else if (handler) {
         handler(response, this_event, formData);
       }
+      reloadActions(formData);
     },
     error: function() {
       setStatusMessage('error', 'Server connection error. Please try again');
@@ -57,7 +91,7 @@ function sendRequest(formData, handler, this_event, parse) {
 }
 
 function toggle_handler(response) {
-  $('#roottabs').html(response);
+  $('#roottabs').html(response.content);
   $('#portal-globalnav').load(' #portal-globalnav>*');
 }
 
@@ -71,17 +105,15 @@ function sendtoggleRequest(field_name, checked_status) {
 }
 
 function sortableList() {
-  var formData = {};
+  var formData = {},
+      liIds = $('#tabslist li').map(function(i, n) {
+        return $(n).attr('id');
+      }).get().join('&');
   formData.ajax_request = true;
-  var liIds = $('#tabslist li').map(function(i, n) {
-    return $(n).attr('id');
-  }).get().join('&');
-  var cat_name = $('#select_category').val();
-  formData.cat_name = cat_name;
+  formData.category = $('#select_category').val();
   formData.actions = liIds;
   formData.edit_moveact = 'Move Action';
   sendRequest(formData, false, false, true);
-
 }
 
 function updateSortable() {
@@ -102,23 +134,22 @@ $(function() {
 });
 
 function hideErrorMessage() {
-  var err,
+  var err, field_name,
       error_fields = ['field-name', 'field-action', 'field-id', 'field-icon', 'field-condition'];
   for (err in error_fields) {
-    var field_name = 'form[name=addaction_form] .' + error_fields[err];
+    field_name = 'form[name=addaction_form] .' + error_fields[err];
     $(field_name).removeClass('error');
     $(field_name + ' .error-container').text('');
-
   }
 }
 
 function displayErrorMessage(err_content) {
-  var err,
+  var err, field_name,
       error_fields = {'title': 'field-name', 'url_expr': 'field-action', 'id': 'field-id', 'icon_expr': 'field-icon', 'available_expr': 'field-condition'};
   hideErrorMessage();
   for (err in error_fields) {
     if (err_content[err]) {
-      var field_name = 'form[name=addaction_form] .' + error_fields[err];
+      field_name = 'form[name=addaction_form] .' + error_fields[err];
       $(field_name).addClass('error');
       $(field_name + ' .error-container').text(err_content[err]);
     }
@@ -166,28 +197,28 @@ function clearAddForm() {
 /*CLIENTS METHODS*/
 
 //titleWrapper
-  $('#tabslist .titleWrapper').live('click', function() {
-      ($(this).closest('li')).addClass('editing');
-  });
+$('#tabslist .titleWrapper').live('click', function() {
+    ($(this).closest('li')).addClass('editing');
+});
 
 //collapse
-  $('.collapseAdvanced .headerAdvanced').live('click', function(event) {
-      toggleCollapsible($(this));
-  });
+$('.collapseAdvanced .headerAdvanced').live('click', function(event) {
+    toggleCollapsible($(this));
+});
 
 /*RESPONSE HANDLERS*/
 
 function category_handler(response) {
-  if (response.status_code === 200) {
-    $('form[name=addaction_form] input[name=category]').text($('#select_category').val());
-    $('#tabslist').html(response.actionslist);
-    $('#autogeneration_section').html(response.section);
-    $('#plonetabs-form-title').text(response.title);
+    if (response.status_code === 200) {
+        $('form[name=addaction_form] input[name=category]').text($('#select_category').val());
+        $('#tabslist').html(response.actionslist);
+        $('#autogeneration_section').html(response.section);
+        $('#plonetabs-form-title').text(response.title);
 
-    $('#addaction').removeClass('adding');
-    toggleCollapsible($('form[name=addaction_form] .headerAdvanced'), true);
-    startupActions();
-  }
+        $('#addaction').removeClass('adding');
+        toggleCollapsible($('form[name=addaction_form] .headerAdvanced'), true);
+        startupActions();
+    }
 }
 
 function edit_handler(response, this_event) {
@@ -223,10 +254,10 @@ function visibility_handler(response, this_event, formData) {
 function roottabs_visibility_handler(response, this_event, formData) {
   $('#portal-globalnav').load(' #portal-globalnav>*');
   if (formData.visibility === true) {
-      $(this).closest('li').removeClass('invisible');
+      this_event.closest('li').removeClass('invisible');
   }
   else {
-      $(this).closest('li').addClass('invisible');
+      this_event.closest('li').addClass('invisible');
   }
 }
 
@@ -249,30 +280,29 @@ function add_handler(response) {
 
 //changing category
 $('#select_category').live('change', function(event) {
-      var formData = {};
-      formData.ajax_request = true;
-      formData.category = $(this).val();
-      formData.category_change = 'Change';
-      sendRequest(formData, category_handler, false, false);
+    var formData = {};
+    formData.ajax_request = true;
+    formData.category = $(this).val();
+    formData.category_change = 'Change';
+    sendRequest(formData, category_handler, false, false);
 });
 
 //save(edit)
 $('#tabslist .editsave').live('click', function(event) {
     event.preventDefault();
-    var formData = $(this).closest('form').serializeArray();
-    var parentFormSelect = $(this).closest('li');
-    formData.push({ name: 'edit_save', value: this.value });
-    formData.push({ name: 'ajax_request', value: true });
+    var formData = $(this).closest('form').serializeObject();
+//     var parentFormSelect = $(this).closest('li');
+    formData.edit_save = this.value;
+    formData.ajax_request = true;
     sendRequest(formData, edit_handler, $(this), false);
 });
 
 //reset(cancel)
 $('#tabslist .editcancel').live('click', function(event) {
     event.preventDefault();
-    var formData = {};
+    var formData = {}, parentFormSelect = $(this).closest('li');
     formData.ajax_request = true;
     formData.edit_cancel = 'Cancel';
-    var parentFormSelect = $(this).closest('li');
     formData.orig_id = parentFormSelect.find('.editform input[name="orig_id"]').val();
     formData.category = parentFormSelect.find('.editform input[name="category"]').val();
     sendRequest(formData, reset_handler, $(this), true);
@@ -281,10 +311,9 @@ $('#tabslist .editcancel').live('click', function(event) {
 //delete
 $('#tabslist .delete').live('click', function(event) {
     event.preventDefault();
-    var formData = {};
+    var formData = {}, parentFormSelect = $(this).closest('li');
     formData.ajax_request = true;
     formData.edit_delete = 'Delete';
-    var parentFormSelect = $(this).closest('li');
     formData.orig_id = parentFormSelect.find('.editform input[name="orig_id"]').val();
     formData.category = parentFormSelect.find('.editform input[name="category"]').val();
     sendRequest(formData, delete_handler, $(this), true);
@@ -292,10 +321,9 @@ $('#tabslist .delete').live('click', function(event) {
 
 //visibility
 $('#tabslist input.visibility').live('click', function(event) {
-    var formData = {};
+    var formData = {}, parentFormSelect = $(this).closest('li');
     formData.ajax_request = true;
     formData.tabslist_visible = 'Set visibillity';
-    var parentFormSelect = $(this).closest('li');
     formData.orig_id = parentFormSelect.find('.editform input[name="orig_id"]').val();
     formData.category = parentFormSelect.find('.editform input[name="category"]').val();
     formData.visibility = $(this).is(':checked');
@@ -306,10 +334,9 @@ $('#tabslist input.visibility').live('click', function(event) {
 
 //visibility
 $('#roottabs .visibility').live('click', function(event) {
-    var formData = {};
+    var formData = {}, parentFormSelect = $(this).closest('li');
     formData.ajax_request = true;
     formData.roottabs_visible = 'Visibillity';
-    var parentFormSelect = $(this).closest('li');
     formData.orig_id = parentFormSelect.attr('id');
     formData.visibility = $(this).is(':checked');
     sendRequest(formData, roottabs_visibility_handler, $(this), true);
@@ -317,24 +344,24 @@ $('#roottabs .visibility').live('click', function(event) {
 
 //toggleGeneratedTabs
 $('#generated_tabs').live('click', function() {
-    var field_name = 'disable_folder_sections';
-    var checked_status = $(this).is(':checked');
+    var field_name = 'disable_folder_sections',
+        checked_status = $(this).is(':checked');
     sendtoggleRequest(field_name, checked_status);
 });
 
 //nonfolderish_tabs
 $('#nonfolderish_tabs').live('click', function() {
-    var field_name = 'disable_nonfolderish_sections';
-    var checked_status = $(this).is(':checked');
+    var field_name = 'disable_nonfolderish_sections',
+        checked_status = $(this).is(':checked');
     sendtoggleRequest(field_name, checked_status);
 });
 
 //Add new action methods
 
 //focus
-  $('#actname').live('focus', function() {
-      $('#addaction').addClass('adding');
-  });
+$('#actname').live('focus', function() {
+    $('#addaction').addClass('adding');
+});
 
 //cancel
 $('#buttoncancel').live('click', function(event) {
@@ -345,9 +372,9 @@ $('#buttoncancel').live('click', function(event) {
 //add
 $('#buttonadd').live('click', function(event) {
     event.preventDefault();
-    var formData = $(this).closest('form').serializeArray();
-    formData.push({ name: 'add_add', value: this.value });
-    formData.push({ name: 'ajax_request', value: true });
-    formData.push({ name: 'cat_name', value: $('#select_category').val() });
+    var formData = $(this).closest('form').serializeObject();
+    formData.add_add = this.value;
+    formData.ajax_request = true;
+    formData.category = $('#select_category').val();
     sendRequest(formData, add_handler, false, false);
 });
