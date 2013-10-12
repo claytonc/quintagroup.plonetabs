@@ -10,8 +10,8 @@ This is a fully rewritten version of qPloneTabs product.
 .. image:: https://travis-ci.org/quintagroup/quintagroup.plonetabs.png?branch=master
 	:target: https://travis-ci.org/quintagroup/quintagroup.plonetabs
 
-.. image:: https://coveralls.io/repos/quintagroup/quintagroup.plonetabs/badge.png?branch=nokss
-	:target: https://coveralls.io/r/quintagroup/quintagroup.plonetabs?branch=nokss
+.. image:: https://coveralls.io/repos/quintagroup/quintagroup.plonetabs/badge.png?branch=master
+	:target: https://coveralls.io/r/quintagroup/quintagroup.plonetabs?branch=master
 
 Features
 --------
