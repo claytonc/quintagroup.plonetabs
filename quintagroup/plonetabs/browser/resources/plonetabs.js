@@ -76,13 +76,13 @@ function sendRequest(formData, handler, this_event, parse) {
     data: formData,
     dataType: 'json',
     success: function(response) {
+      reloadActions(formData);
       if (parse) {
         parseResponse(response, this_event, formData, handler);
       }
       else if (handler) {
         handler(response, this_event, formData);
       }
-      reloadActions(formData);
     },
     error: function() {
       setStatusMessage('error', 'Server connection error. Please try again');
@@ -117,8 +117,7 @@ function sortableList() {
 }
 
 function updateSortable() {
-  $('#tabslist').unbind();
-  $('#tabslist').sortable().bind('sortupdate', function() {sortableList();});
+  $('#tabslist').unbind().sortable({handle: 'img'}).bind('sortupdate', function() {sortableList();});
 }
 
 function startupActions() {
