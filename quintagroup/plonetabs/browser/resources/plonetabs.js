@@ -104,7 +104,7 @@ function sendtoggleRequest(field_name, checked_status) {
   sendRequest(formData, toggle_handler, false, true);
 }
 
-function sortableList() {
+function sortableList(handler) {
   var formData = {},
       liIds = $('#tabslist li').map(function(i, n) {
         return $(n).attr('id');
@@ -113,11 +113,12 @@ function sortableList() {
   formData.category = $('#select_category').val();
   formData.actions = liIds;
   formData.edit_moveact = 'Move Action';
-  sendRequest(formData, false, false, true);
+  sendRequest(formData, handler, false, true);
 }
 
 function updateSortable() {
-  $('#tabslist').unbind().sortable({handle: 'img'}).bind('sortupdate', function() {sortableList();});
+  initializeplonetabsDnDReorder('#tabslist', function(handler) {sortableList(handler)});
+//   $('#tabslist').unbind().sortable({handle: 'img'}).bind('sortupdate', function() {sortableList();});
 }
 
 function startupActions() {

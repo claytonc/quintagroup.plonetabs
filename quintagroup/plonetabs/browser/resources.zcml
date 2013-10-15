@@ -53,8 +53,8 @@
         />
 
     <browser:resource
-        name="sortable.js"
-        file="./resources/sortable.js"
+        name="plonetabsdragdropreorder.js"
+        file="./resources/dragdropreorder.js"
         layer="quintagroup.plonetabs.interfaces.IPloneTabsProductLayer"
         />
 </configure>

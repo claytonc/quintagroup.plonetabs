@@ -16,8 +16,8 @@
                  portal_url portal_state/portal_url;
                  test nocall:view/test">
 
-<script type="text/javascript" src="/++resource++sortable.js"
-        tal:attributes="src string:${portal_url}/++resource++sortable.js"></script>
+<script type="text/javascript" src="/++resource++plonetabsdragdropreorder.js"
+        tal:attributes="src string:${portal_url}/++resource++plonetabsdragdropreorder.js"></script>
 <script type="text/javascript" src="/++resource++plonetabs.js"
         tal:attributes="src string:${portal_url}/++resource++plonetabs.js"></script>
 
