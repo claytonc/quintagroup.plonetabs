@@ -56,6 +56,25 @@ class TestControlPanelHelperMethods(PloneTabsTestCase):
         self.assertEquals(response['status_code'], 200)
         self.assertEquals(response['status_message'], u"'action_id' action successfully added.")
 
+    def test_ajax_toggleActionsVisibility(self):
+        form = {
+            'category': 'site_actions',
+            'orig_id': 'contact',
+            'tabslist_visible': 'Set visibillity',
+            'visibility': 'false'
+        }
+        response = self.panel.manage_ajax_toggleActionsVisibility(form)
+        self.assertEquals(response, {
+            'status_code': 200,
+            'status_message': u"'contact' action is now invisible."
+        })
+        form['visibility'] = 'true'
+        response = self.panel.manage_ajax_toggleActionsVisibility(form)
+        self.assertEquals(response, {
+            'status_code': 200,
+            'status_message': u"'contact' action is now visible."
+        })
+
     def test_redirect(self):
         response = self.portal.REQUEST.RESPONSE
         method = self.panel.redirect
