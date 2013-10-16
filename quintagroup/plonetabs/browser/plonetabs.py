@@ -80,7 +80,7 @@ class PloneTabsControlPanel():
 
         # action handler def handler(self, form)
         if ajax_request:
-            ajaxback = self.ajax_postback(form, errors)
+            ajaxback = self.ajax_postback(form)
         if submitted:
             postback = self.submitted_postback(form, errors)
 
@@ -120,7 +120,7 @@ class PloneTabsControlPanel():
             postback = True
         return postback
 
-    def ajax_postback(self, form, errors):
+    def ajax_postback(self, form):
         """ajax_postback ajaxback"""
         conv_dict = {
             "edit_moveact": "manage_ajax_moveAction",
@@ -137,7 +137,7 @@ class PloneTabsControlPanel():
         for method in conv_dict.keys():
             if method in form.keys():
                 method_val = conv_dict.get(method)
-                return getattr(self, method_val)(form, errors)
+                return getattr(self, method_val)(form)
 
         return False
 
@@ -161,7 +161,7 @@ class PloneTabsControlPanel():
     # AJAX Methods
     #
 
-    def manage_ajax_addAction(self, form, errs):
+    def manage_ajax_addAction(self, form):
         # extract posted data
         resp_dict = {}
         cat_name = form['category']
@@ -186,7 +186,7 @@ class PloneTabsControlPanel():
             resp_dict['content'] = errors
         return resp_dict
 
-    def manage_ajax_toggleGeneratedTabs(self, form, errs):
+    def manage_ajax_toggleGeneratedTabs(self, form):
         """Toggle autogenaration setting on configlet"""
         resp_dict = {}
         errors = []
@@ -211,7 +211,7 @@ class PloneTabsControlPanel():
             resp_dict['status_code'] = 500
         return resp_dict
 
-    def manage_ajax_toggleRootsVisibility(self, form, errs):
+    def manage_ajax_toggleRootsVisibility(self, form):
         # Toggle visibility for portal actions
         resp_dict = {}
         errors = []
@@ -250,7 +250,7 @@ class PloneTabsControlPanel():
             resp_dict['status_code'] = 500
         return resp_dict
 
-    def manage_ajax_toggleActionsVisibility(self, form, errs):
+    def manage_ajax_toggleActionsVisibility(self, form):
         # Toggle visibility for portal actions
         resp_dict = {}
 
@@ -282,7 +282,7 @@ class PloneTabsControlPanel():
             resp_dict['status_code'] = 500
         return resp_dict
 
-    def manage_ajax_deleteAction(self, form, errs):
+    def manage_ajax_deleteAction(self, form):
         """Delete portal action with given id & category"""
         resp_dict = {}
 
@@ -303,7 +303,7 @@ class PloneTabsControlPanel():
             resp_dict['status_code'] = 500
         return resp_dict
 
-    def manage_ajax_cancelEditting(self, form, errs):
+    def manage_ajax_cancelEditting(self, form):
         """Hide edit form for given action"""
         resp_dict = {}
         # TODO: parse, validate form
@@ -350,7 +350,7 @@ class PloneTabsControlPanel():
                       mapping={'id': act_id, 'cat_name': cat_name})))
         return (act_id, category, action, errors)
 
-    def manage_ajax_saveAction(self, form, errs):
+    def manage_ajax_saveAction(self, form):
         """Manage Method to update action"""
         # extract posted data
         id, cat_name, data = self.parseEditForm(form)
@@ -382,7 +382,7 @@ class PloneTabsControlPanel():
             }
         return resp_dict
 
-    def manage_ajax_moveAction(self, form, errs):
+    def manage_ajax_moveAction(self, form):
         cat_name = form['category']
         category = self.getActionCategory(cat_name)
         components = urllib.unquote(form['actions']).split('&')
@@ -408,7 +408,7 @@ class PloneTabsControlPanel():
             }
         return resp_dict
 
-    def manage_ajax_changeCategory(self, form, errs):
+    def manage_ajax_changeCategory(self, form):
         resp_dict = {}
         errors = []
 

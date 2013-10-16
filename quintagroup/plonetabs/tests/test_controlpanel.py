@@ -32,19 +32,16 @@ class TestControlPanelHelperMethods(PloneTabsTestCase):
 
     def test_ajax_addAction(self):
         form = {
-            #'add_add': 'Add',
-            #'ajax_request': True,
             'available_expr': '',
             'category': 'site_actions',
             'description': '',
-            #'form.submitted:boolean': True,
             'icon_expr': '',
             'id': '',
             'title': '',
             'url_expr': '',
             'visible': 1,
         }
-        response = self.panel.manage_ajax_addAction(form, None)
+        response = self.panel.manage_ajax_addAction(form)
         self.assertEquals(response, {
             'content': {
                 'id': u'Empty or invalid id specified',
@@ -55,7 +52,7 @@ class TestControlPanelHelperMethods(PloneTabsTestCase):
         })
         form['id'] = 'action_id'
         form['title'] = 'action title'
-        response = self.panel.manage_ajax_addAction(form, None)
+        response = self.panel.manage_ajax_addAction(form)
         self.assertEquals(response['status_code'], 200)
         self.assertEquals(response['status_message'], u"'action_id' action successfully added.")
 
