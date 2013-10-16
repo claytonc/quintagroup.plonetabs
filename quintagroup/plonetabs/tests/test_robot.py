@@ -11,5 +11,7 @@ def test_suite():
     suite.addTests([
         layered(robotsuite.RobotTestSuite("test_tabs.txt"),
                 layer=TABS_ACCEPTANCE_TESTING),
+        layered(robotsuite.RobotTestSuite("test_tabs_without_javascripts.txt"),
+                layer=TABS_ACCEPTANCE_TESTING),
     ])
     return suite

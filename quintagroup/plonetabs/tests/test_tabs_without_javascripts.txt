@@ -2,6 +2,8 @@
 
 Library  Selenium2Library  timeout=15  implicit_wait=0.1
 
+Library  patch.py
+
 Variables  plone/app/testing/interfaces.py
 
 Suite Setup  Open Browser and login
@@ -25,8 +27,7 @@ Reinstall Plone Tabs
 
 Add Action
     Go To  ${PLONE_URL}/@@plonetabs-controlpanel
-    Focus  actname
-    Page should contain element  //form[@id='addaction'][@class='adding']
+    Page should contain element  //form[@id='addaction']
     Click Button  buttonadd
     Page Should Contain  Please correct the indicated errors.
     Page Should Contain  Empty or invalid id specified
@@ -34,55 +35,47 @@ Add Action
     Input Text  actname  action / title
     Input Text  actid  action_id
     Click Button  buttonadd
-    Page Should Contain  'action_id' action successfully added.
-    Wait Until Page Contains Element  //li[@id='tabslist_action_id']
-    Mouse Over  //li[@id='tabslist_action_id']
-    Click Element  //li[@id='tabslist_action_id']/a[@class='delete']
+    Wait Until Page Contains  'action_id' action successfully added.
+    Page Should Contain Element  //li[@id='tabslist_action_id']
+    Click Button  //li[@id='tabslist_action_id']//input[contains(@class, 'editdelete')]
     Wait Until Page Contains  'action_id' action deleted.
 
 Edit Action
     Go To  ${PLONE_URL}/@@plonetabs-controlpanel
-    Click Element  //li[@id='tabslist_index_html']/div[contains(@class, 'titleWrapper')]
-    Wait Until Page Contains Element  //li[@id='tabslist_index_html'][@class='editing']
     Input Text  title_index_html  Home updated
     Click Element  //li[@id='tabslist_index_html']//input[@value='Save']
-    Wait Until Page Contains  'index_html' action successfully updated.
-    Wait Until Keyword Succeeds  10s  1s  Element Text Should Be  //li[@id='portaltab-index_html']/a  Home updated
-    Click Element  //li[@id='tabslist_index_html']/div[contains(@class, 'titleWrapper')]
-    Wait Until Page Contains Element  //li[@id='tabslist_index_html'][@class='editing']
+    Wait Until Page Contains  'index_html' action saved.
+    Element Text Should Be  //li[@id='portaltab-index_html']/a  Home updated
     Input Text  title_index_html  Home
     Click Element  //li[@id='tabslist_index_html']//input[@value='Save']
-    Wait Until Page Contains  'index_html' action successfully updated.
-    Wait Until Keyword Succeeds  10s  1s  Element Text Should Be  //li[@id='portaltab-index_html']/a  Home
+    Wait Until Page Contains  'index_html' action saved.
+    Element Text Should Be  //li[@id='portaltab-index_html']/a  Home
 
 Add Visibility
     Go To  ${PLONE_URL}/@@plonetabs-controlpanel
     Page Should Contain Element  //li[@id='portaltab-index_html']
-    Mouse Over  //li[@id='tabslist_index_html']
     Unselect Checkbox  visible_index_html
-    Wait Until Page Contains  'index_html' action is now invisible.
-    Wait Until Keyword Succeeds  10s  1s  Page Should Not Contain Element  //li[@id='portaltab-index_html']
+    Click Element  //li[@id='tabslist_index_html']//input[@value='Save']
+    Wait Until Page Contains  'index_html' action saved.
+    Page Should Not Contain Element  //li[@id='portaltab-index_html']
     Page Should Contain Element  //li[@id='tabslist_index_html'][@class='invisible']
-    Mouse Over  //li[@id='tabslist_index_html']
     Select Checkbox  visible_index_html
-    Wait Until Page Contains  'index_html' action is now visible.
-    Wait Until Page Contains Element  //li[@id='portaltab-index_html']
+    Click Element  //li[@id='tabslist_index_html']//input[@value='Save']
+    Wait Until Page Contains  'index_html' action saved.
+    Page Should Contain Element  //li[@id='portaltab-index_html']
     Page Should Not Contain Element  //li[@id='tabslist_index_html'][@class='invisible']
 
 Actions Sorting
     Go To  ${PLONE_URL}/@@plonetabs-controlpanel
     Select From List  select_category  site_actions
+    Click Button  Change
     Wait Until Page Contains  Plone 'site_actions' Configuration
-    Set Selenium Speed  0.2 seconds
-    Mouse Over  //li[@id='tabslist_plone_setup']
-    Drag And Drop  //li[@id='tabslist_plone_setup']//img[contains(@class, 'drag-handle')]  //li[@id='tabslist_contact']
-    Wait Until Page Contains  Actions successfully sorted.
+    Click Button  //li[@id='tabslist_plone_setup']//input[contains(@class, 'editmoveup')]
+    Wait Until Page Contains  'plone_setup' action moved up.
     Wait Until Page Contains Element  //li[@id='tabslist_contact']/preceding-sibling::li[@id='tabslist_plone_setup']
-    Mouse Over  //li[@id='tabslist_contact']
-    Drag And Drop  //li[@id='tabslist_contact']//img[contains(@class, 'drag-handle')]  //li[@id='tabslist_plone_setup']
-    Wait Until Page Contains  Actions successfully sorted.
+    Click Button  //li[@id='tabslist_contact']//input[contains(@class, 'editmoveup')]
+    Wait Until Page Contains  'contact' action moved up.
     Wait Until Page Contains Element  //li[@id='tabslist_plone_setup']/preceding-sibling::li[@id='tabslist_contact']
-    Set Selenium Speed  0 seconds
 
 Autogenerated Tabs
     Go To  ${PLONE_URL}/@@plonetabs-controlpanel
@@ -90,27 +83,35 @@ Autogenerated Tabs
     List Selection Should Be  //select[@id='select_category']  portal_tabs
     Select Checkbox  //input[@id='generated_tabs']
     Click Element  //input[@id='generated_tabs']
-    Wait Until Page Contains  Generated tabs switched off.
-    Wait Until Keyword Succeeds  10s  1s  Xpath Should Match X Times  //ul[@id='portal-globalnav']/li  1
+    Click Button  //div[@id='autogeneration_section']//input[@value='Save']
+#    Wait Until Page Contains  Generated tabs switched off.
+    Wait Until Page Contains  Changes saved!
+    Xpath Should Match X Times  //ul[@id='portal-globalnav']/li  1
     Click Element  //input[@id='generated_tabs']
-    Wait Until Page Contains  Generated tabs switched on.
-    Wait Until Keyword Succeeds  10s  1s  Xpath Should Match X Times  //ul[@id='portal-globalnav']/li  4
+    Click Button  //div[@id='autogeneration_section']//input[@value='Save']
+#    Wait Until Page Contains  Generated tabs switched on.
+    Wait Until Page Contains  Changes saved!
+    Xpath Should Match X Times  //ul[@id='portal-globalnav']/li  4
     Mouse Over  //li[@id='roottabs_news']
     Select Checkbox  //li[@id='roottabs_news']//input[@type='checkbox']
     Mouse Over  //li[@id='roottabs_news']
     Click Element  //li[@id='roottabs_news']//input[@type='checkbox']
-    Wait Until Page Contains  'news' object was excluded from navigation.
-    Wait Until Keyword Succeeds  10s  1s  Xpath Should Match X Times  //ul[@id='portal-globalnav']/li  3
+    Click Button  //div[@id='autogeneration_section']//input[@value='Save']
+#    Wait Until Page Contains  'news' object was excluded from navigation.
+    Wait Until Page Contains  Changes saved!
+    Xpath Should Match X Times  //ul[@id='portal-globalnav']/li  3
     Page Should Contain Element  //li[@id='roottabs_news'][@class='invisible']
-    Mouse Over  //li[@id='roottabs_news']
     Click Element  //li[@id='roottabs_news']//input[@type='checkbox']
-    Wait Until Page Contains  'news' object was included into navigation.
-    Wait Until Keyword Succeeds  10s  1s  Xpath Should Match X Times  //ul[@id='portal-globalnav']/li  4
+    Click Button  //div[@id='autogeneration_section']//input[@value='Save']
+#    Wait Until Page Contains  'news' object was included into navigation.
+    Wait Until Page Contains  Changes saved!
+    Xpath Should Match X Times  //ul[@id='portal-globalnav']/li  4
     Page Should Not Contain Element  //li[@id='roottabs_news'][@class='invisible']
 
 Change Actions Category
     Go To  ${PLONE_URL}/@@plonetabs-controlpanel
     Select From List  select_category  site_actions
+    Click Button  Change
     Wait Until Page Contains  Plone 'site_actions' Configuration
 
 
