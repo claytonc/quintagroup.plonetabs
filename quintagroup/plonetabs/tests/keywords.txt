@@ -1,0 +1,38 @@
+*** Settings ***
+
+Library  Selenium2Library  timeout=15  implicit_wait=0.1
+
+Variables  plone/app/testing/interfaces.py
+
+
+*** Keywords ***
+
+Install quintagroup.plonetabs
+    Go To  ${PLONE_URL}/prefs_install_products_form
+    Select Checkbox  //form[contains(@action, '/installProducts')]//input[@id='quintagroup.plonetabs']
+    Click Button  Activate
+    Wait Until Page Contains Element  //form[not(contains(@action, '/installProducts')) and contains(@action, '/portal_quickinstaller')]//input[@id='quintagroup.plonetabs']
+
+Uninstall quintagroup.plonetabs
+    Go To  ${PLONE_URL}/prefs_install_products_form
+    Select Checkbox  //form[not(contains(@action, '/installProducts')) and contains(@action, '/portal_quickinstaller')]//input[@id='quintagroup.plonetabs']
+    Click Button  Deactivate
+    Wait Until Page Contains Element  //form[contains(@action, '/installProducts')]//input[@id='quintagroup.plonetabs']
+
+Open plonetabs controlpanel
+    Open browser  ${PLONE_URL}
+    Log in as site owner
+    Go To  ${PLONE_URL}/@@plonetabs-controlpanel
+
+Log in
+    [Arguments]  ${userid}  ${password}
+    Go to  ${PLONE_URL}/login_form
+    Page should contain element  __ac_name
+    Page should contain element  __ac_password
+    Page should contain button  Log in
+    Input text  __ac_name  ${userid}
+    Input text  __ac_password  ${password}
+    Click Button  Log in
+
+Log in as site owner
+    Log in  ${SITE_OWNER_NAME}  ${SITE_OWNER_PASSWORD}
