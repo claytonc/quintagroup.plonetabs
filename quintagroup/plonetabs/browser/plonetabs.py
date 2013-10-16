@@ -165,7 +165,7 @@ class PloneTabsControlPanel():
         # extract posted data
         resp_dict = {}
         cat_name = form['category']
-        id, ie7bad_category, data = self.parseAddForm(self.request.form)
+        id, ie7bad_category, data = self.parseAddForm(form)
 
         # validate posted data
         errors = self.validateActionFields(cat_name, data)

@@ -26,6 +26,39 @@ class TestControlPanelHelperMethods(PloneTabsTestCase):
         self.panel = panel.__of__(self.portal)
         self.tool = getToolByName(self.portal, 'portal_actions')
 
+    def test_renderPanel(self):
+        response = self.panel()
+        self.assertTrue('Portal Tabs Configuration' in response)
+
+    def test_ajax_addAction(self):
+        form = {
+            #'add_add': 'Add',
+            #'ajax_request': True,
+            'available_expr': '',
+            'category': 'site_actions',
+            'description': '',
+            #'form.submitted:boolean': True,
+            'icon_expr': '',
+            'id': '',
+            'title': '',
+            'url_expr': '',
+            'visible': 1,
+        }
+        response = self.panel.manage_ajax_addAction(form, None)
+        self.assertEquals(response, {
+            'content': {
+                'id': u'Empty or invalid id specified',
+                'title': u'Empty or invalid title specified'
+            },
+            'status_code': 500,
+            'status_message': u'Please correct the indicated errors.'
+        })
+        form['id'] = 'action_id'
+        form['title'] = 'action title'
+        response = self.panel.manage_ajax_addAction(form, None)
+        self.assertEquals(response['status_code'], 200)
+        self.assertEquals(response['status_message'], u"'action_id' action successfully added.")
+
     def test_redirect(self):
         response = self.portal.REQUEST.RESPONSE
         method = self.panel.redirect
