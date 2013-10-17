@@ -27,11 +27,150 @@ class TestControlPanelHelperMethods(PloneTabsTestCase):
         self.tool = getToolByName(self.portal, 'portal_actions')
 
     def test_renderPanel(self):
+        form = self.panel.request.form
         response = self.panel()
         self.assertTrue('Portal Tabs Configuration' in response)
+        form['form.submitted'] = True
+        response = self.panel()
+        self.assertTrue('Portal Tabs Configuration' in response)
+        form['ajax_request'] = True
+        response = self.panel()
+        self.assertTrue('Portal Tabs Configuration' in response)
+        form['category'] = 'site_actions'
+        form['edit_cancel'] = 'Cancel'
+        form['orig_id'] = 'contact'
+        response = self.panel()
+        self.assertTrue('"status_code": 200' in response)
+
+    def test_ajax_toggleRootsVisibility(self):
+        form = {
+            'orig_id': 'roottabs_invalid',
+            'roottabs_visible': 'Visibillity',
+            'visibility': 'false'
+        }
+        response = self.panel.ajax_postback(form)
+        self.assertEquals(response['status_code'], 500)
+        self.assertEquals(response['status_message'], ["Object with 'invalid' id doesn't exist in portal root."])
+        form['orig_id'] = 'roottabs_news'
+        response = self.panel.ajax_postback(form)
+        self.assertEquals(response['status_code'], 200)
+        self.assertEquals(response['status_message'], "'news' object was excluded from navigation.")
+        form['visibility'] = 'true'
+        response = self.panel.ajax_postback(form)
+        self.assertEquals(response['status_code'], 200)
+        self.assertEquals(response['status_message'], "'news' object was included into navigation.")
+
+    def test_ajax_toggleGeneratedTabs(self):
+        form = {
+            'field': 'invalid_property',
+            'generated_tabs': 'false'
+        }
+        response = self.panel.ajax_postback(form)
+        self.assertEquals(response['status_code'], 500)
+        self.assertEquals(response['status_message'], "Invalid property name.")
+        form = {
+            'field': 'disable_folder_sections',
+            'generated_tabs': 'false'
+        }
+        response = self.panel.ajax_postback(form)
+        self.assertEquals(response['status_code'], 200)
+        self.assertEquals(response['status_message'], "Generated tabs switched off.")
+        form['generated_tabs'] = 'true'
+        response = self.panel.ajax_postback(form)
+        self.assertEquals(response['status_code'], 200)
+        self.assertEquals(response['status_message'], "Generated tabs switched on.")
+        form = {
+            'field': 'disable_nonfolderish_sections',
+            'generated_tabs': 'false'
+        }
+        response = self.panel.ajax_postback(form)
+        self.assertEquals(response['status_code'], 200)
+        self.assertEquals(response['status_message'], "Generated tabs for items other than folders switched off.")
+        form['generated_tabs'] = 'true'
+        response = self.panel.ajax_postback(form)
+        self.assertEquals(response['status_code'], 200)
+        self.assertEquals(response['status_message'], "Generated tabs for items other than folders switched on.")
+
+    def test_ajax_changeCategory(self):
+        form = {
+            'category': 'site_actions0',
+            'category_change': 'Change'
+        }
+        response = self.panel.ajax_postback(form)
+        self.assertEquals(response['status_code'], 500)
+        self.assertEquals(response['status_message'], u"'site_actions0' action category does not exist.")
+        form['category'] = 'site_actions'
+        response = self.panel.ajax_postback(form)
+        self.assertEquals(response['status_code'], 200)
+        self.assertEquals(response['status_message'], u"Category changed successfully.")
+
+    def test_ajax_cancelEditting(self):
+        form = {
+            'category': 'site_actions',
+            'edit_cancel': 'Cancel',
+            'orig_id': 'contact0',
+        }
+        response = self.panel.ajax_postback(form)
+        self.assertEquals(response['status_code'], 500)
+        self.assertEquals(response['status_message'], [u"No 'contact0' action in 'site_actions' category."])
+        form['orig_id'] = 'contact'
+        response = self.panel.ajax_postback(form)
+        self.assertEquals(response['status_code'], 200)
+        self.assertEquals(response['status_message'], u"Changes discarded.")
+
+    def test_ajax_saveAction(self):
+        form = {
+            'available_expr_contact': '',
+            'category': 'site_actions',
+            'description_contact': '',
+            'edit_save': 'Save',
+            'icon_expr_contact': '',
+            'id_contact': 'sitemap',
+            'orig_id': 'contact',
+            'title_contact': 'Contact',
+            'url_expr_contact': 'string:${globals_view/navigationRootUrl}/contact-info',
+            'visible_contact': 1
+        }
+        response = self.panel.ajax_postback(form)
+        self.assertEquals(response['status_code'], 500)
+        self.assertEquals(response['status_message'], u"Please correct the indicated errors.")
+        self.assertEquals(response['content'], {'id': u"The id 'sitemap' is invalid - it is already in use."})
+        form['id_contact'] = 'contact'
+        response = self.panel.ajax_postback(form)
+        self.assertEquals(response['status_code'], 200)
+        self.assertEquals(response['status_message'], u"'contact' action successfully updated.")
+
+    def test_ajax_deleteAction(self):
+        form = {
+            'category': 'site_actions',
+            'edit_delete': 'Delete',
+            'orig_id': 'contact0'
+        }
+        response = self.panel.ajax_postback(form)
+        self.assertEquals(response['status_code'], 500)
+        self.assertEquals(response['status_message'], [u"No 'contact0' action in 'site_actions' category."])
+        form['orig_id'] = 'contact'
+        response = self.panel.ajax_postback(form)
+        self.assertEquals(response['status_code'], 200)
+        self.assertEquals(response['status_message'], u"'contact' action deleted.")
+
+    def test_ajax_moveAction(self):
+        form = {
+            'actions': 'tabslist_sitemap&tabslist_accessibility&tabslist_contact&tabslist_plone_setup',
+            'category': 'site_actions',
+            'edit_moveact': 'Move Action'
+        }
+        response = self.panel.ajax_postback(form)
+        self.assertEquals(response['status_code'], 500)
+        self.assertEquals(response['status_message'], u"There was error while sorting, or list not changed")
+        form['actions'] = 'tabslist_contact&tabslist_sitemap&tabslist_accessibility&tabslist_plone_setup'
+        response = self.panel.ajax_postback(form)
+        self.assertEquals(response['status_code'], 200)
+        self.assertEquals(response['status_message'], u"Actions successfully sorted.")
 
     def test_ajax_addAction(self):
         form = {
+            'add_add': 'Add',
             'available_expr': '',
             'category': 'site_actions',
             'description': '',
@@ -41,39 +180,37 @@ class TestControlPanelHelperMethods(PloneTabsTestCase):
             'url_expr': '',
             'visible': 1,
         }
-        response = self.panel.manage_ajax_addAction(form)
-        self.assertEquals(response, {
-            'content': {
-                'id': u'Empty or invalid id specified',
-                'title': u'Empty or invalid title specified'
-            },
-            'status_code': 500,
-            'status_message': u'Please correct the indicated errors.'
+        response = self.panel.ajax_postback(form)
+        self.assertEquals(response['status_code'], 500)
+        self.assertEquals(response['status_message'], u'Please correct the indicated errors.')
+        self.assertEquals(response['content'], {
+            'id': u'Empty or invalid id specified',
+            'title': u'Empty or invalid title specified'
         })
         form['id'] = 'action_id'
         form['title'] = 'action title'
-        response = self.panel.manage_ajax_addAction(form)
+        response = self.panel.ajax_postback(form)
         self.assertEquals(response['status_code'], 200)
         self.assertEquals(response['status_message'], u"'action_id' action successfully added.")
 
     def test_ajax_toggleActionsVisibility(self):
         form = {
             'category': 'site_actions',
-            'orig_id': 'contact',
+            'orig_id': 'contact0',
             'tabslist_visible': 'Set visibillity',
             'visibility': 'false'
         }
-        response = self.panel.manage_ajax_toggleActionsVisibility(form)
-        self.assertEquals(response, {
-            'status_code': 200,
-            'status_message': u"'contact' action is now invisible."
-        })
+        response = self.panel.ajax_postback(form)
+        self.assertEquals(response['status_code'], 500)
+        self.assertEquals(response['status_message'], [u"No 'contact0' action in 'site_actions' category."])
+        form['orig_id'] = 'contact'
+        response = self.panel.ajax_postback(form)
+        self.assertEquals(response['status_code'], 200)
+        self.assertEquals(response['status_message'], u"'contact' action is now invisible.")
         form['visibility'] = 'true'
-        response = self.panel.manage_ajax_toggleActionsVisibility(form)
-        self.assertEquals(response, {
-            'status_code': 200,
-            'status_message': u"'contact' action is now visible."
-        })
+        response = self.panel.ajax_postback(form)
+        self.assertEquals(response['status_code'], 200)
+        self.assertEquals(response['status_message'], u"'contact' action is now visible.")
 
     def test_redirect(self):
         response = self.portal.REQUEST.RESPONSE

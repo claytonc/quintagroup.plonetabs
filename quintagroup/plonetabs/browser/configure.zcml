@@ -1,9 +1,9 @@
 <configure
     xmlns="http://namespaces.zope.org/zope"
     xmlns:browser="http://namespaces.zope.org/browser">
-    
+
     <include file="resources.zcml" />
-    
+
     <browser:page
         name="plonetabs-controlpanel"
         for="Products.CMFPlone.interfaces.IPloneSiteRoot"
@@ -21,12 +21,4 @@
         layer="quintagroup.plonetabs.interfaces.IPloneTabsProductLayer"
         />
 
-    <browser:page
-        name="plonetabs-mode"
-        for="*"
-        class=".plonetabs.PloneTabsMode"
-        permission="zope.Public"
-        layer="quintagroup.plonetabs.interfaces.IPloneTabsProductLayer"
-        />
-    
 </configure>
