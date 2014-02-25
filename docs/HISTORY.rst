@@ -1,20 +1,26 @@
 Changelog
 =========
 
-0.7.1-dev (unreleased)
-----------------------
+1.0 - (25-02-2014)
+------------------
 
 * Added French translations from transifex, thanks Marc Sokolovitch
   [kroman0, msoko]
 
 * Updated code according with pep8, pylint, pyflakes
-  [potar]
+  [kroman0, potar]
 
 * Fixed tests and compatibility with Plone 3  (added plone detecting)
   [potar]
 
 * Added plone.browserlayer to install_requires (setup.py)
   [potar]
+
+* Added more tests, cleanup code
+  [kroman0]
+
+* Added description field
+  [kroman0]
 
 0.7 - (12-03-2012)
 ------------------
